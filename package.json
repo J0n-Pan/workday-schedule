@@ -1,6 +1,6 @@
 {
   "name": "workday",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "description": "中文个人工作日程管理应用 - 每日计划 / 工作推进 / 当日成果 / 后续承接 / 周复盘",
