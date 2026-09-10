@@ -1,11 +1,12 @@
 Option Explicit
 ' Workday launcher: start the local server (if not already running) and open the browser.
+' Node lookup order: <project>\runtime\node.exe (self-contained) -> node on PATH.
 Dim sh, fso, node, project, cmd, url, i, up
 Set sh = CreateObject("WScript.Shell")
 Set fso = CreateObject("Scripting.FileSystemObject")
 
 project = fso.GetParentFolderName(WScript.ScriptFullName)
-node = "C:\Users\admin\.workbuddy\binaries\node\versions\22.22.2-2\node.exe"
+node = project & "\runtime\node.exe"
 If Not fso.FileExists(node) Then node = "node"
 
 url = "http://127.0.0.1:5173/"
@@ -17,7 +18,7 @@ If Not IsUp(url) Then
   On Error Resume Next
   sh.Run cmd, 0, False
   If Err.Number <> 0 Then
-    MsgBox "无法启动服务进程，请检查 node 是否可用。" & vbCrLf & cmd, 16, "工作日程"
+    MsgBox "无法启动服务进程，请检查 runtime\node.exe 是否存在。" & vbCrLf & cmd, 16, "工作日程"
     WScript.Quit 1
   End If
   On Error GoTo 0

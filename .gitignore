@@ -1,5 +1,7 @@
 # 本地数据（数据库、附件、备份）：不入库
 data/
+# 私有 Node 运行时（84MB，用 tools/setup_runtime.py 生成）：不入库
+runtime/
 tests/.tmp/
 node_modules/
 *.log
