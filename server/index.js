@@ -78,10 +78,26 @@ const server = http.createServer(async (req, res) => {
   serveStatic(req, res, url.pathname);
 });
 
+// 端口被占用等启动失败要给人类能看懂的提示，而不是抛调用栈
+server.on('error', (err) => {
+  if (err && err.code === 'EADDRINUSE') {
+    console.error('');
+    console.error(`  端口 ${PORT} 已被占用，服务无法启动。`);
+    console.error('  换个端口重试（示例）：');
+    console.error(`    Windows:  set PORT=5174  && "${process.execPath}" "${path.join(ROOT, 'server', 'index.js')}"`);
+    console.error(`    macOS/Linux:  PORT=5174 "${process.execPath}" ${path.join(ROOT, 'server', 'index.js')}`);
+    console.error('  或先关闭占用该端口的程序。');
+    console.error('');
+    process.exit(1);
+  }
+  console.error('服务启动失败：', err);
+  process.exit(1);
+});
+
 server.listen(PORT, HOST, () => {
   const tz = process.env.TZ || systemTimezone();
   console.log('');
-  console.log('  工作日 · 个人工作日程管理');
+  console.log('  工作日程 · 个人工作日程管理');
   console.log(`  地址:      http://${HOST}:${PORT}`);
   console.log(`  数据库:    ${DB_PATH}`);
   console.log(`  附件目录:  ${ATTACHMENTS_DIR}`);
