@@ -1,6 +1,5 @@
 Option Explicit
 ' Workday launcher: start the local server (if not already running) and open the browser.
-' Run hidden via wscript (see tools/make_shortcut.py for the desktop shortcut).
 Dim sh, fso, node, project, cmd, url, i, up
 Set sh = CreateObject("WScript.Shell")
 Set fso = CreateObject("Scripting.FileSystemObject")
@@ -18,7 +17,7 @@ If Not IsUp(url) Then
   On Error Resume Next
   sh.Run cmd, 0, False
   If Err.Number <> 0 Then
-    MsgBox "æ— æ³•å¯åŠ¨æœåŠ¡ï¼š" & Err.Description & vbCrLf & cmd, 16, "å·¥ä½œæ—¥ç¨‹"
+    MsgBox "ÎŞ·¨Æô¶¯·şÎñ½ø³Ì£¬Çë¼ì²é node ÊÇ·ñ¿ÉÓÃ¡£" & vbCrLf & cmd, 16, "¹¤×÷ÈÕ³Ì"
     WScript.Quit 1
   End If
   On Error GoTo 0
@@ -34,8 +33,8 @@ Else
 End If
 
 If Not up Then
-  MsgBox "æœåŠ¡å¯åŠ¨è¶…æ—¶ï¼Œè¯·æ£€æŸ¥ 5173 ç«¯å£æ˜¯å¦è¢«å ç”¨ã€‚" & vbCrLf & _
-         "ä¹Ÿå¯åœ¨é¡¹ç›®ç›®å½•æ‰§è¡Œï¼šnpm start", 16, "å·¥ä½œæ—¥ç¨‹"
+  MsgBox "·şÎñÆô¶¯³¬Ê±£¨Ô¼ 20 Ãë£©£¬Çë¼ì²é 5173 ¶Ë¿ÚÊÇ·ñ±»Õ¼ÓÃ¡£" & vbCrLf & _
+         "Ò²¿ÉÔÚÏîÄ¿Ä¿Â¼Ö´ĞĞ£ºÆô¶¯·şÎñ.bat", 16, "¹¤×÷ÈÕ³Ì"
   WScript.Quit 1
 End If
 
