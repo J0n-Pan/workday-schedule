@@ -16,7 +16,7 @@ runtime\node.exe --test tests/     # 17 个自动化用例
 - 运行时：`runtime/node.exe`（v22.22.2，84MB，随项目放置，**不入库**）。缺失时重新生成：`python tools/setup_runtime.py`（自动找本机 Node）或加 `--download`（从 nodejs.org 拉官方包）。
 - 启动器查找顺序：`runtime\node.exe` → PATH 上的 `node`，两者都没有才失败。
 
-Windows 桌面快捷方式 **「工作日程」**（WorkBuddy 图标）：双击自动拉起服务并打开浏览器。  
+Windows 桌面快捷方式 **「工作日程」**（图标可用 `--icon` 指定）：双击自动拉起服务并打开浏览器。  
 重新生成：`python tools/make_shortcut.py`（需 `pip install pylnk3`）；兜底：双击 `启动服务.bat`。  
 实测服务冷启动到就绪约 **530ms**（`python tools/measure_start.py`），其余等待主要来自浏览器冷启动。
 
