@@ -29,6 +29,18 @@ export async function handleApi(req, res, ctx, url) {
       return sendJson(res, 200, { ok: true, now: nowISO(), today, timezone: cfg.timezone });
     }
 
+    /* ---------------- 停止服务 ---------------- */
+    // 网页右下角「停止服务」按钮：先回响应，再优雅关停本机服务进程。
+    // 要求自定义头，浏览器对非简单请求会先发预检，可挡住其他站点对本机地址的跨站调用。
+    if (p === '/api/system/shutdown' && method === 'POST') {
+      if (req.headers['x-workday-action'] !== 'shutdown') {
+        throw badRequest('缺少停止动作标识，已拒绝该请求');
+      }
+      sendJson(res, 200, { ok: true, message: '服务即将停止' });
+      setTimeout(() => { if (ctx.requestShutdown) ctx.requestShutdown(); }, 300);
+      return;
+    }
+
     if (p === '/api/settings' && method === 'GET') {
       return sendJson(res, 200, {
         settings: cfg,

@@ -45,7 +45,20 @@ export async function startServer({ now, dataDir, timezone, clean = true } = {})
   while (Date.now() < deadline) {
     try {
       const r = await fetch(`${url}/api/health`);
-      if (r.ok) return { url, dir, stop: () => new Promise((res) => { child.on('exit', res); child.kill('SIGTERM'); }), child };
+      if (r.ok) {
+        return {
+          url,
+          dir,
+          port,
+          // 进程可能已自行退出（例如走了「停止服务」接口），此时直接返回，避免等不到 exit 事件
+          stop: () => new Promise((res) => {
+            if (child.exitCode !== null || child.signalCode) { res(); return; }
+            child.on('exit', res);
+            child.kill('SIGTERM');
+          }),
+          child,
+        };
+      }
     } catch { /* retry */ }
     await new Promise((r) => setTimeout(r, 120));
   }

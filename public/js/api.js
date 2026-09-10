@@ -18,8 +18,8 @@ function bumpError(err, retry) {
   emit();
 }
 
-async function request(method, path, body, { raw = false, silent = false } = {}) {
-  const init = { method, headers: {} };
+async function request(method, path, body, { raw = false, silent = false, headers } = {}) {
+  const init = { method, headers: { ...(headers || {}) } };
   if (body !== undefined && !(body instanceof FormData)) {
     init.headers['content-type'] = 'application/json';
     init.body = JSON.stringify(body);
@@ -65,4 +65,9 @@ export const api = {
   put: (p, b, o) => tracked('PUT', p, b ?? {}, o),
   upload: (p, form) => tracked('POST', p, form),
   silentGet: (p) => request('GET', p, undefined, { silent: true }),
+  /** 停止本机服务：服务随即退出，故走 silent，避免产生"保存失败"提示 */
+  shutdown: () => request('POST', '/api/system/shutdown', { confirm: true }, {
+    silent: true,
+    headers: { 'x-workday-action': 'shutdown' },
+  }),
 };

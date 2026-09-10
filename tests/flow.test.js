@@ -463,4 +463,44 @@ describe('删除与回收站', () => {
   });
 });
 
+/* ============================================================
+ * 8. 停止服务（网页按钮）
+ * ========================================================== */
+describe('停止服务', () => {
+  test('缺少动作标识时拒绝且服务存活；携带动作标识时响应后进程退出', async () => {
+    const s = await mk({ now: '2026-09-10T10:00:00+08:00', dataDir: dirOf('shutdown') });
+
+    // 1) 无自定义头：拒绝，服务不受影响
+    const deny = await fetch(`${s.url}/api/system/shutdown`, {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: '{"confirm":true}',
+    });
+    assert.equal(deny.status, 400, '缺少动作标识应被拒绝');
+    const alive = await fetch(`${s.url}/api/health`);
+    assert.equal(alive.ok, true, '被拒绝后服务应仍在运行');
+
+    // 2) 带动作标识：先回 200，随后进程退出、端口不再响应
+    const exited = new Promise((resolve) => {
+      if (s.child.exitCode !== null) resolve('exited');
+      else s.child.on('exit', () => resolve('exited'));
+    });
+    const res = await fetch(`${s.url}/api/system/shutdown`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-workday-action': 'shutdown' },
+      body: '{"confirm":true}',
+    });
+    assert.equal(res.status, 200, '请求本身应正常返回 200');
+    assert.equal((await res.json()).ok, true);
+
+    const outcome = await Promise.race([
+      exited,
+      new Promise((resolve) => setTimeout(() => resolve('timeout'), 6000)),
+    ]);
+    assert.equal(outcome, 'exited', '服务进程应在响应后退出');
+
+    let up = false;
+    try { up = (await fetch(`${s.url}/api/health`)).ok; } catch { up = false; }
+    assert.equal(up, false, '停止后端口不应再响应');
+  });
+});
+
 before(() => { fs.mkdirSync(tmpRoot, { recursive: true }); });

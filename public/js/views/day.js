@@ -1,6 +1,6 @@
 import { api } from '../api.js';
 import {
-  $, $$, esc, toast, modal, drawer, bindAutosave, saveIndicator, uploadFiles, filePicker,
+  $, $$, esc, toast, modal, drawer, confirmDialog, bindAutosave, saveIndicator, uploadFiles, filePicker,
   STATUS_TEXT, STATUS_CLASS, PRIORITY_TEXT, PRIORITY_CLASS, fmtTime, fmtSize, dateCn, weekdayOf,
 } from '../ui.js';
 import { openTaskDrawer, newTaskModal } from './task.js';
@@ -106,6 +106,13 @@ export async function renderDay(root, ctx) {
         <section class="card">
           <div class="card-head"><h2>下一步安排</h2></div>
           <div class="card-body" id="next-body"></div>
+        </section>
+        <section class="card" id="service-card">
+          <div class="card-head"><h2>服务</h2><span class="hint">本机后台进程</span></div>
+          <div class="card-body">
+            <p class="small muted" style="margin:0 0 10px">关闭浏览器页面不会停止服务；需要彻底结束时点下方按钮，本机服务进程会退出，数据已实时保存在磁盘上。</p>
+            <button class="btn danger solid block" id="stop-server">停止服务</button>
+          </div>
         </section>
       </aside>
     </div>`;
@@ -265,6 +272,7 @@ export async function renderDay(root, ctx) {
   $('#f-priority', root).onchange = (e) => { filters.priority = e.target.value; renderPlans(); };
   $('#f-project', root).onchange = (e) => { filters.project = e.target.value; renderPlans(); };
   $('#f-focus', root).onclick = (e) => { filters.focusOnly = !filters.focusOnly; e.target.classList.toggle('on', filters.focusOnly); renderPlans(); };
+  $('#stop-server', root).onclick = () => stopServiceFlow(root);
 
   renderFocus(); renderPlans(); renderAch(); renderReminders(); renderBlockers(); renderNext();
   void canPlan;
@@ -358,7 +366,6 @@ export function achCard(a) {
 }
 
 async function confirmDefault(msg) {
-  const { confirmDialog } = await import('../ui.js');
   const r = await confirmDialog({ title: '请确认', message: msg, danger: true, confirmText: '确定' });
   return !!r;
 }
@@ -508,6 +515,47 @@ export function deferModal(ctx, p, day) {
       },
     }],
   });
+}
+
+/* ---------------- 停止服务 ---------------- */
+
+async function stopServiceFlow(root) {
+  const ok = await confirmDialog({
+    title: '停止服务',
+    message: '将终止本机后台服务进程，之后本页面无法继续使用，需要重新启动服务才能再次打开。'
+      + '<br><br>数据已实时写入本地数据库，停止服务不会丢失任何内容。',
+    confirmText: '停止服务',
+    danger: true,
+  });
+  if (!ok) return;
+
+  const btn = $('#stop-server', root);
+  if (btn) { btn.disabled = true; btn.textContent = '正在停止…'; }
+  try {
+    await api.shutdown();
+  } catch {
+    // 服务在响应送达前就退出时 fetch 会抛网络错误，属预期情况
+  }
+  showStoppedOverlay();
+}
+
+function showStoppedOverlay() {
+  if ($('#stopped-mask')) return;
+  const el = document.createElement('div');
+  el.className = 'stopped-mask';
+  el.id = 'stopped-mask';
+  el.innerHTML = `
+    <div class="stopped-box">
+      <h3>服务已停止</h3>
+      <p>本机后台服务进程已退出，现在可以安全关闭此页面。</p>
+      <p class="small muted">下次使用：双击桌面「工作日程」图标重新启动。</p>
+      <button class="btn primary" id="close-page">关闭页面</button>
+    </div>`;
+  document.body.appendChild(el);
+  $('#close-page', el).onclick = () => {
+    window.close();
+    setTimeout(() => toast('浏览器不允许脚本关闭该标签页，请手动关闭', 'error'), 120);
+  };
 }
 
 export { bindAutosave, saveIndicator, drawer, uploadFiles };

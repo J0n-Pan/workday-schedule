@@ -36,6 +36,9 @@ const ctx = {
   backupsDir: BACKUPS_DIR,
 };
 
+// 网页上的「停止服务」按钮走这里优雅关停（函数声明会提升，运行时才取值）
+ctx.requestShutdown = () => shutdown('网页「停止服务」按钮');
+
 function serveStatic(req, res, pathname) {
   let rel = pathname === '/' ? 'index.html' : decodeURIComponent(pathname).replace(/^\/+/, '');
   if (!rel || rel.endsWith('/')) rel += 'index.html';
@@ -106,7 +109,10 @@ server.listen(PORT, HOST, () => {
   console.log('');
 });
 
+let shuttingDown = false;
 function shutdown(sig) {
+  if (shuttingDown) return;
+  shuttingDown = true;
   console.log(`\n收到 ${sig}，正在关闭...`);
   try { server.closeAllConnections(); } catch { /* ignore */ }
   server.close(() => {

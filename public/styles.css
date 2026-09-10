@@ -156,6 +156,8 @@ a { color: var(--accent); text-decoration: none; }
 .btn.ghost:hover { background: var(--bg-soft); }
 .btn.danger { color: var(--red); border-color: color-mix(in srgb, var(--red) 35%, var(--border)); }
 .btn.danger:hover { background: var(--red-soft); }
+.btn.danger.solid { background: var(--red); border-color: var(--red); color: #fff; }
+.btn.danger.solid:hover { background: var(--red); filter: brightness(1.08); }
 .btn.sm { padding: 4px 8px; font-size: 12.5px; }
 .btn.icon { padding: 6px; width: 30px; height: 30px; }
 .btn.block { width: 100%; }
@@ -260,6 +262,19 @@ textarea.input { min-height: 84px; resize: vertical; line-height: 1.6; }
 .modal-head { padding: 14px 16px; border-bottom: 1px solid var(--border); font-weight: 650; display: flex; align-items: center; gap: 8px; }
 .modal-body { padding: 14px 16px; overflow-y: auto; }
 .modal-foot { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+
+/* ================== 服务已停止 ================== */
+.stopped-mask {
+  position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 16px;
+  background: color-mix(in srgb, var(--bg) 80%, transparent); backdrop-filter: blur(2px);
+}
+.stopped-box {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow-lg); padding: 22px 24px; width: min(420px, 100%); text-align: center;
+}
+.stopped-box h3 { margin: 0 0 10px; font-size: 16px; }
+.stopped-box p { margin: 0 0 8px; font-size: 13px; color: var(--text-soft); }
+.stopped-box .btn { margin-top: 10px; }
 
 /* ================== 提示条 ================== */
 .notice { display: flex; gap: 8px; padding: 9px 12px; border-radius: var(--radius-sm); font-size: 12.5px; border: 1px solid; margin-bottom: 10px; }
