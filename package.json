@@ -1,0 +1,15 @@
+{
+  "name": "workday",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "中文个人工作日程管理应用 - 每日计划 / 工作推进 / 当日成果 / 后续承接 / 周复盘",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js",
+    "test": "node --test --test-force-exit tests/flow.test.js"
+  }
+}
