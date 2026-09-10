@@ -1,7 +1,7 @@
 """Install a private Node.js runtime into ./runtime so the app is self-contained.
 
 The launcher (launch.vbs) uses runtime\\node.exe first, so the app does not depend on
-any globally installed Node or on the WorkBuddy directory.
+any globally installed Node or on any tool directory.
 
 Usage:
     python tools/setup_runtime.py                # find a local Node >= 22.5 and copy it
@@ -44,11 +44,12 @@ def candidates():
     which = shutil.which('node')
     if which:
         found.append(which)
+    extra = [p for p in os.environ.get('WORKDAY_NODE_DIRS', '').split(os.pathsep) if p]
     for p in (
         os.path.join(os.environ.get('ProgramFiles', ''), 'nodejs', 'node.exe'),
         os.path.join(os.environ.get('ProgramW6432', ''), 'nodejs', 'node.exe'),
         os.path.join(os.environ.get('LOCALAPPDATA', ''), 'Programs', 'nodejs', 'node.exe'),
-        os.path.join(os.path.expanduser('~'), '.workbuddy', 'binaries', 'node', 'versions'),
+        *extra,
     ):
         if p.endswith('versions') and os.path.isdir(p):
             for name in sorted(os.listdir(p), reverse=True):
